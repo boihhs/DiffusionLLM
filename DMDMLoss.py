@@ -20,19 +20,32 @@ class DMDMLoss(nn.Module):
         super(DMDMLoss, self).__init__()
         
 
-    def forward(self, GT, P, t):
-        # Get the dimentions
-        B, L, N = GT.shape
+    def forward(self, GT, P, t, xin):
+        """
+        GT:   [B, L, N] one-hot ground truth
+        P:    [B, L, N] predicted probabilities
+        t:    [B]       noise levels
+        xin:  [B, L, N] one-hot inputs (mask token is index 0)
+        """
 
-        # We need to compute -(1/(t+1))*/sum(log(P[i]*GT[i]).T) for all i and then take the mean
-        return (-1*(1/(t+1)))@((torch.log((P*GT).sum(dim=2))).sum(dim=1)) / B
-        # This works as P*GT is element wise multication so it keeps size (B, L, N)
-        # Then doing the .sum(dim=2) sums across the last dimention making the size (B, L)
-        # Then you log it to get the surprise keeping it size (B, L)
-        # Then you sum across the last dimention getting size (B)
-        # Now the -1*(1/(t+1)) outputs size (B)
-        # Then the @ is the dot product and sums them and then we get size ()
-        # Laslty we divide by B to get the average
+        # 1) extract only the log-prob of the true class
+        #    (P * GT).sum(-1) is [B, L], log it safely:
+        true_prob = (P * GT).sum(dim=2).clamp(min=1e-8)
+        log_p     = torch.log(true_prob)               # [B, L]
+
+        # 2) build a mask of where xin == mask_token (class 0):
+        mask_flag = xin[:, :, 0]                        # [B, L], 1.0 where masked, 0.0 else
+
+        # 3) sum log-probs only over masked positions:
+        sum_log   = (mask_flag * log_p).sum(dim=1)      # [B]
+
+        # 4) weight by your factor and take **mean over batch**:
+        #    per-sample loss = - sum_log / (t_i)
+        loss_per_sample = - sum_log / (t).clamp(min=1e-8)  # [B]
+
+        # 5) final scalar:
+        return loss_per_sample.mean()
+
         
 
 
