@@ -1,3 +1,48 @@
+<<<<<<< HEAD
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+from IPython.display import HTML
+import numpy as np
+
+def animate_decoding(tokens, interval=300):
+    """
+    Animate the decoding of tokens: each token occupies the same space,
+    special tokens (length > 1) are displayed as spaces, and letters
+    are revealed sequentially.
+    
+    tokens: list of strings (each string is a token)
+    interval: delay between frames in milliseconds
+    """
+    # Prepare display characters: single-char tokens keep their char, others become space
+    final_chars = [tok if len(tok) == 1 else ' ' for tok in tokens]
+    N = len(final_chars)
+    
+    # Initialize plot
+    fig, ax = plt.subplots(figsize=(N * 0.3, 1.5))
+    ax.axis('off')
+    text = ax.text(0.5, 0.5, ' ' * N, fontsize=24, family='monospace',
+                   ha='center', va='center')
+    
+    def update(frame):
+        # Reveal characters up to the current frame
+        display_chars = [' ']*N
+        for i in range(frame + 1):
+            display_chars[i] = final_chars[i]
+        text.set_text(''.join(display_chars))
+        return text,
+    
+    anim = FuncAnimation(fig, update, frames=N, interval=interval, blit=True, repeat=False)
+    plt.show()
+
+    plt.close(fig)
+    return HTML(anim.to_jshtml())
+
+# Example usage: replace or extend this list with your decoding tokens
+tokens = ['<s>', 'H', 'e', 'l', 'l', 'o', '<mask>', 'w', 'o', 'r', 'l', 'd', '!', '</s>']
+animation = animate_decoding(tokens, interval=400)
+
+
+=======
 import matplotlib.pyplot as plt
 import torch
 
@@ -42,3 +87,4 @@ plt.ylabel("Loss")
 plt.grid(True)
 plt.tight_layout()
 plt.show()
+>>>>>>> 5ef3fe9be88c49d2ae7bd10b46754207eb21c73c
