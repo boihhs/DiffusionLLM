@@ -13,9 +13,10 @@ class WordTokenizer:
 
         self.mask_id = 0
         self.word2id = {w: i+1 for i, w in enumerate(vocab)}
-        self.word2id[self.unk_token] = len(vocab) + 1
+        self.unk_id = len(vocab) + 1
+        self.word2id[self.unk_token] = self.unk_id
         self.word2id[self.mask_token] = self.mask_id
-        self.pad_id = len(vocab) + 2
+        self.pad_id = self.unk_id + 1
         self.id2word = {i: w for w, i in self.word2id.items()}
         self.id2word[self.pad_id] = self.pad_token
 
