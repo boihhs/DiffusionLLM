@@ -3,15 +3,15 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import LinearLR, CosineAnnealingLR
-from dataload import CharDataset, make_collate_fn
-from ByteTokenizer import tok
+from dataload import TextDataset, make_collate_fn
+from WordTokenizer import tok
 from model import Network
 from DMDMLoss import DMDMLoss
 
 vocab_size = tok.vocab_size
 batch_size = 32
 
-dataset = CharDataset("TinyStoriesV2-GPT4-train.txt", tok, max_chars=100)
+dataset = TextDataset("TinyStoriesV2-GPT4-train.txt", tok, max_tokens=100)
 loader = DataLoader(dataset,
                     batch_size=batch_size,
                     shuffle=True,
