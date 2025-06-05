@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 from model import Network
-from BPETokenizer import tok
+from ByteTokenizer import tok
 
 class Inference:
     def __init__(self, model_path, tokenizer, device='cuda'):

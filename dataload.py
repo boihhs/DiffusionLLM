@@ -49,7 +49,7 @@ chars_by_freq = [
     '7'
 ]
 
-# default tokenizer instance
+# default tokenizer instance (character level)
 tokenizer = CharTokenizer(chars_by_freq)
 
 
@@ -71,11 +71,17 @@ class CharDataset(Dataset):
             ids = ids[:self.max_chars]
         return torch.tensor(ids, dtype=torch.long)
 
-def collate_fn(batch):
-    lengths = [seq.size(0) for seq in batch]
-    max_len = max(lengths)
-    b = len(batch)
-    padded = torch.full((b, max_len), tokenizer.pad_id, dtype=torch.long)
-    for i, seq in enumerate(batch):
-        padded[i, :lengths[i]] = seq
-    return padded
+def make_collate_fn(tok: CharTokenizer):
+    """Create a collate_fn using the given tokenizer for padding."""
+    def collate_fn(batch):
+        lengths = [seq.size(0) for seq in batch]
+        max_len = max(lengths)
+        b = len(batch)
+        padded = torch.full((b, max_len), tok.pad_id, dtype=torch.long)
+        for i, seq in enumerate(batch):
+            padded[i, :lengths[i]] = seq
+        return padded
+    return collate_fn
+
+# backwards compatibility
+collate_fn = make_collate_fn(tokenizer)

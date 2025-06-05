@@ -3,7 +3,7 @@ import torch
 import torch.nn.functional as F
 from model import Network
 from visulaizing import animate_diffusion_states
-from BPETokenizer import tok
+from ByteTokenizer import tok
 
 class Inference:
     def __init__(self, model_path: str, tokenizer, device: str = 'cuda'):

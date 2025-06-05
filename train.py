@@ -3,8 +3,8 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import LinearLR, CosineAnnealingLR
-from dataload import CharDataset, collate_fn, tokenizer
-from BPETokenizer import tok
+from dataload import CharDataset, make_collate_fn
+from ByteTokenizer import tok
 from model import Network
 from DMDMLoss import DMDMLoss
 
@@ -12,7 +12,10 @@ vocab_size = tok.vocab_size
 batch_size = 32
 
 dataset = CharDataset("TinyStoriesV2-GPT4-train.txt", tok, max_chars=100)
-loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+loader = DataLoader(dataset,
+                    batch_size=batch_size,
+                    shuffle=True,
+                    collate_fn=make_collate_fn(tok))
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = Network(N=vocab_size).to(device)
